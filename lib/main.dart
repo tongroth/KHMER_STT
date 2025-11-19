@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:khmer_speech_t0_text/text_controller.dart';
+import 'package:khmer_speech_t0_text/app_controller.dart';
 
 void main() {
   runApp(const GetMaterialApp(home: KhmerStt()));
@@ -11,7 +11,7 @@ class KhmerStt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textController = Get.put(TextController());
+    final appController = Get.put(AppController());
     return Scaffold(
       appBar: AppBar(
         title: const Text('Khmer Speech → Text (Google)'),
@@ -30,13 +30,13 @@ class KhmerStt extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
-                  onChanged: (value) => textController.text.value = value,
+                  controller: appController.textController,
                   textAlign: TextAlign.start,
                   style: const TextStyle(fontSize: 18, height: 1.4),
                   maxLines: null, // Allow multiline
                   expands: true, // Make TextField expand
                   decoration: const InputDecoration.collapsed(
-                    hintText: 'ប៊ូតុងខាងក្រោម៖ ចុចដើម្បីថត បន្ទាប់មកបញ្ឈប់ដើម្បីបម្លែង។',
+                    hintText: 'ចុចរូបមេក្រូដើម្បីថតសំឡេង...',
                   ),
                 ),
               ),
@@ -44,10 +44,13 @@ class KhmerStt extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.large(
-        onPressed: textController.initAudio,
-        child: const Icon(Icons.mic, size: 36),
-      ),
+      floatingActionButton: Obx(() => FloatingActionButton.large(
+        onPressed: appController.toggleListening,
+        child: Icon(
+          appController.isListening.value ? Icons.stop : Icons.mic,
+          size: 36,
+        ),
+      )),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

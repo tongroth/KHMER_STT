@@ -49,5 +49,11 @@
 	<array>
 		<string>audio</string>
 	</array>
+
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>This app requires access to speech recognition to convert your voice into text.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>This app requires microphone access to record your voice for speech-to-text conversion.</string>
+
 </dict>
 </plist>

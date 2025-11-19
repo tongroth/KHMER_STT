@@ -11,7 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   get: ^4.6.6
-  audioplayers: ^6.0.0 # Replaced flutter_tts
+  audioplayers: ^6.0.0
+  speech_to_text: ^7.3.0
 
   cupertino_icons: ^1.0.8
 
