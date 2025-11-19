@@ -1,0 +1,6 @@
+This folder is for your recorded sound files.
+
+Please add your .mp3 files here, named after the Khmer characters.
+For example: ក.mp3, ខ.mp3, etc.
+
+Also, add a file named delete.mp3 for the delete action.
