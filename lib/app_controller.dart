@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/material.dart';
 
 class AppController extends GetxController {
@@ -8,9 +8,10 @@ class AppController extends GetxController {
   final textController = TextEditingController();
   final _audioPlayer = AudioPlayer();
   String _previousText = "";
+  bool _isUpdatingFromVoice = false;
 
   // For Speech to Text
-  final _speechToText = SpeechToText();
+  stt.SpeechToText speech = stt.SpeechToText();
   final isListening = false.obs;
   bool _isSpeechInitialized = false;
 
@@ -22,30 +23,48 @@ class AppController extends GetxController {
   }
 
   Future<void> _initialize() async {
-    // Init audio player
-    await _audioPlayer.setReleaseMode(ReleaseMode.release);
-    // Init speech to text
-    _isSpeechInitialized = await _speechToText.initialize(
+    // Optimized for low latency
+    await _audioPlayer.setReleaseMode(ReleaseMode.stop);
+
+    _isSpeechInitialized = await speech.initialize(
       onError: (error) => print('Speech Error: $error'),
       onStatus: (status) => print('Speech Status: $status'),
     );
   }
 
   void _handleTextChange() {
+    if (_isUpdatingFromVoice) {
+      _previousText = textController.text;
+      return;
+    }
+
     final newText = textController.text;
-    if (newText.length > _previousText.length && newText.startsWith(_previousText)) {
-      final newChar = newText.substring(_previousText.length);
-      if (newChar.isNotEmpty) {
-        _playSound(newChar[0]);
+    if (newText.length > _previousText.length) {
+      if (newText.startsWith(_previousText)) {
+        String newChar = newText.substring(_previousText.length);
+        if (newChar.isNotEmpty) {
+          _playCharacterSound(newChar[0]);
+        }
       }
-    } else if (newText.length < _previousText.length && _previousText.startsWith(newText)) {
+    } else if (newText.length < _previousText.length) {
       _playSound('delete');
     }
+
     _previousText = newText;
+  }
+
+  Future<void> _playCharacterSound(String char) async {
+    String soundFile = char.toLowerCase();
+
+    if (char == " ") soundFile = "space";
+    if (char == ".") soundFile = "dot";
+
+    _playSound(soundFile);
   }
 
   Future<void> _playSound(String soundName) async {
     try {
+      await _audioPlayer.stop();
       await _audioPlayer.play(AssetSource('sounds/$soundName.mp3'));
     } catch (e) {
       print("Error playing sound '$soundName.mp3': $e");
@@ -65,25 +84,28 @@ class AppController extends GetxController {
       print("Speech recognizer not initialized");
       return;
     }
-    
+
     isListening.value = true;
-    _speechToText.listen(
+    speech.listen(
       onResult: (result) {
-        // Only update the text field with the final result
-        if (result.finalResult) {
-          textController.text = result.recognizedWords;
-          // Move cursor to the end
-          textController.selection = TextSelection.fromPosition(TextPosition(offset: textController.text.length));
-        }
+        _isUpdatingFromVoice = true;
+
+        // For web, we must replace the text with each result for real-time feedback.
+        textController.text = result.recognizedWords;
+
+        textController.selection = TextSelection.fromPosition(
+            TextPosition(offset: textController.text.length));
+
+        _isUpdatingFromVoice = false;
       },
-      localeId: 'km_KH', // Khmer language
-      listenFor: const Duration(minutes: 1), // Set a longer listen duration
+      localeId: 'km_KH', // Khmer
+      listenFor: const Duration(minutes: 1),
     );
   }
 
   void stopListening() {
     isListening.value = false;
-    _speechToText.stop();
+    speech.stop();
   }
 
   @override
