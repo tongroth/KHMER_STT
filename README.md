@@ -1,16 +1,15 @@
-# khmer_speech_t0_text
+# Khmer Speech → Text
 
-A new Flutter project.
+This Flutter app lets you enter Khmer text and convert it to speech in real time using Microsoft Azure Speech.
 
-## Getting Started
+## Azure Speech setup
 
-This project is a starting point for a Flutter application.
+The app reads your Azure credentials from Dart defines so you do **not** hard-code keys in source control.
 
-A few resources to get you started if this is your first Flutter project:
+```
+flutter run \
+  --dart-define=AZURE_SPEECH_KEY=<your_subscription_key> \
+  --dart-define=AZURE_SPEECH_REGION=<your_region> # defaults to eastus
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Recommended Khmer neural voice: `km-KH-SreymomNeural` (already set as the default).

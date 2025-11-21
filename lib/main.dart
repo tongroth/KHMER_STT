@@ -14,7 +14,7 @@ class KhmerStt extends StatelessWidget {
     final textController = Get.put(TextController());
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Khmer Speech → Text (Google)'),
+        title: const Text('Khmer Speech → Text (Microsoft TTS)'),
         centerTitle: true,
       ),
       body: Padding(
@@ -36,19 +36,53 @@ class KhmerStt extends StatelessWidget {
                   maxLines: null, // Allow multiline
                   expands: true, // Make TextField expand
                   decoration: const InputDecoration.collapsed(
-                    hintText: 'ប៊ូតុងខាងក្រោម៖ ចុចដើម្បីថត បន្ទាប់មកបញ្ឈប់ដើម្បីបម្លែង។',
+                    hintText: 'ប៊ូតុងខាងក្រោម៖ ចុចដើម្បីបម្លែងអត្ថបទទៅសំលេង។',
                   ),
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            Obx(
+              () => Column(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: textController.isLoading.value
+                        ? null
+                        : () {
+                            textController.initAudio();
+                            textController.speakCurrentText();
+                          },
+                    icon: textController.isLoading.value
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.volume_up),
+                    label: Text(
+                      textController.isLoading.value
+                          ? 'កំពុងបម្លែង...'
+                          : 'បម្លែងជាសំលេង (Azure)',
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(56),
+                    ),
+                  ),
+                  if (textController.errorMessage.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(
+                        textController.errorMessage.value,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.large(
-        onPressed: textController.initAudio,
-        child: const Icon(Icons.mic, size: 36),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
