@@ -5,7 +5,7 @@ class TextController extends GetxController {
   final text = ''.obs;
   String _previousText = "";
   final AudioPlayer _audioPlayer = AudioPlayer();
-  bool _isAudioInitialized = false; // To track if audio is unlocked on web
+  bool _isAudioInitialized = true; // To track if audio is unlocked on web
 
   @override
   void onInit() {
@@ -34,7 +34,10 @@ class TextController extends GetxController {
       final newChar = newText.substring(_previousText.length);
       // This simple logic plays a sound for the first new character.
       if (newChar.isNotEmpty) {
-         _playSound(newChar[0]);
+        if (newChar[0] == ' ') {
+          _playSound('space');  // play space.mp3
+        }else{
+         _playSound(newChar[0]);}
       }
     } 
     // Handles deleting a character
